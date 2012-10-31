@@ -33,14 +33,15 @@ public class PatientAdapter extends ArrayAdapter<Patient> {
         if (patient != null) {
             Log.i("Win Log", "Patient Data: " + patient.getUuid());
             TextView textView = (TextView) view.findViewById(R.id.identifier_text);
-            textView.setText(patient.getIdentifier());
+            String[] identifierElements = patient.getIdentifier().split("=");
+            textView.setText(identifierElements[1].trim());
 
             textView = (TextView) view.findViewById(R.id.name_text);
             textView.setText(patient.getName());
-//
-//            DateFormat format = new SimpleDateFormat("dd/MMM/yyyy");
-//            textView = (TextView) view.findViewById(R.id.birthdate_text);
-//            textView.setText(format.format(patient.getBirthdate()));
+
+            DateFormat format = new SimpleDateFormat("dd/MMM/yyyy");
+            textView = (TextView) view.findViewById(R.id.birthdate_text);
+            textView.setText(format.format(patient.getBirthdate()));
 
             ImageView imageView = (ImageView) view.findViewById(R.id.gender_image);
             if (imageView != null) {

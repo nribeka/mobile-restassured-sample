@@ -125,7 +125,7 @@ public class SearchPatientActivity extends Activity {
                         InputStream inputStream = getResources().openRawResource(R.raw.cohorttemplate);
                         JsonLuceneConfig config = JsonLuceneUtil.load(inputStream);
 
-                        PatientLoaderTask patientLoaderTask = new PatientLoaderTask(injector, config, connection.getInputStream());
+                        PatientLoaderTask patientLoaderTask = new PatientLoaderTask(injector);
                         patientLoaderTask.execute("Loading Patient");
                     } catch (IOException e) {
                         Log.e("Win Log", "Exception caught when trying to read HTTP connection.", e);
