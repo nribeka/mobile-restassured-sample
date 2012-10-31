@@ -45,6 +45,7 @@ import com.nribeka.search.util.Constants;
 import com.nribeka.search.util.FileUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -135,6 +136,22 @@ public class ListPatientActivity extends ListActivity {
                     t.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                     t.show();
                 }
+            }
+        });
+
+        Button displayPatients = (Button) findViewById(R.id.delete_patients);
+        displayPatients.setOnClickListener(new OnClickListener() {
+
+            public void onClick(View v) {
+
+                File file = new File("/mnt/sdcard/lucene");
+                for (String filename : file.list()) {
+                    Log.i("Win Log", "Trying to delete: " + filename);
+                    File indexFile = new File(filename);
+                    if (indexFile.delete())
+                        Log.i("Win Log", "Deleted: " + indexFile.getName());
+                }
+
             }
         });
 

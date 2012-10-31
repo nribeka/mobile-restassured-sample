@@ -90,6 +90,9 @@ public class PatientLoaderTask extends AsyncTask<String, String, String> {
                 IndexService indexService = injector.getInstance(IndexService.class);
                 indexService.updateIndex(observationLuceneConfig, patientObsConnection.getInputStream());
             }
+
+            Log.i("Win Log", "Loading patient completed successfully!");
+
         } catch (IOException e) {
             Log.e("Win Log", "Exception caught when loading patient and observation data.", e);
         }

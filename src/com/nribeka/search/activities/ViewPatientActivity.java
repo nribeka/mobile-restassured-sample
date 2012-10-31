@@ -108,11 +108,13 @@ public class ViewPatientActivity extends ListActivity {
                 ip = new Intent(getApplicationContext(), ObservationChartActivity.class);
                 ip.putExtra(Constants.KEY_PATIENT_ID, patient.getUuid());
                 ip.putExtra(Constants.KEY_OBSERVATION_FIELD_ID, obs.getFieldUuid());
+                ip.putExtra(Constants.KEY_OBSERVATION_FIELD_NAME, obs.getFieldName());
                 startActivity(ip);
             } else {
                 ip = new Intent(getApplicationContext(), ObservationTimelineActivity.class);
                 ip.putExtra(Constants.KEY_PATIENT_ID, patient.getUuid());
                 ip.putExtra(Constants.KEY_OBSERVATION_FIELD_ID, obs.getFieldUuid());
+                ip.putExtra(Constants.KEY_OBSERVATION_FIELD_NAME, obs.getFieldName());
                 startActivity(ip);
             }
         }

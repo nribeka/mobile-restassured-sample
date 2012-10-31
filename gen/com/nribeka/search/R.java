@@ -37,7 +37,7 @@ public final class R {
         public static final int birthdate_text=0x7f080011;
         public static final int buttonholder=0x7f080006;
         public static final int chart=0x7f08000e;
-        public static final int display_patients=0x7f080008;
+        public static final int delete_patients=0x7f080008;
         public static final int download_patients=0x7f080007;
         public static final int encounterdate_text=0x7f080001;
         public static final int fieldname_text=0x7f08000f;
@@ -95,7 +95,7 @@ public final class R {
         public static final int default_password=0x7f07000b;
         public static final int default_server=0x7f07000c;
         public static final int default_username=0x7f07000d;
-        public static final int display_patients=0x7f070011;
+        public static final int delete_patients=0x7f070011;
         public static final int download=0x7f07000e;
         public static final int download_forms=0x7f07000f;
         public static final int download_patients=0x7f070010;

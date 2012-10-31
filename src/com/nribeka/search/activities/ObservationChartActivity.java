@@ -37,6 +37,8 @@ public class ObservationChartActivity extends Activity {
 
     private String mObservationFieldName;
 
+    private String mObservationFieldUuid;
+
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
 
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
@@ -62,7 +64,8 @@ public class ObservationChartActivity extends Activity {
         String patientUuid = getIntent().getStringExtra(Constants.KEY_PATIENT_ID);
         mPatient = getPatient(patientUuid);
 
-        mObservationFieldName = getIntent().getStringExtra(Constants.KEY_OBSERVATION_FIELD_ID);
+        mObservationFieldUuid = getIntent().getStringExtra(Constants.KEY_OBSERVATION_FIELD_ID);
+        mObservationFieldName = getIntent().getStringExtra(Constants.KEY_OBSERVATION_FIELD_NAME);
 
         setTitle(getString(R.string.app_name) + " > " + getString(R.string.view_patient_detail));
 
@@ -87,10 +90,10 @@ public class ObservationChartActivity extends Activity {
         return searchService.getObject(Patient.class, "uuid:" + uuid);
     }
 
-    private void getObservations(final String uuid, final String fieldName) {
+    private void getObservations(final String uuid, final String fieldName, final String fieldUuid) {
         SearchService searchService = injector.getInstance(SearchService.class);
         List<Observation> observations = searchService.getObjects(Observation.class,
-                "patient_uuid:" + uuid + " AND concept_name:" + fieldName);
+                "patient_uuid:" + uuid + " AND concept_uuid:" + fieldUuid);
 
         XYSeries series;
         if (mDataset.getSeriesCount() > 0) {
@@ -116,7 +119,7 @@ public class ObservationChartActivity extends Activity {
         super.onResume();
 
         if (mPatient != null && mObservationFieldName != null) {
-            getObservations(mPatient.getUuid(), mObservationFieldName);
+            getObservations(mPatient.getUuid(), mObservationFieldName, mObservationFieldUuid);
         }
 
         if (mChartView == null) {

@@ -49,9 +49,9 @@ public class ObservationAlgorithm implements Algorithm<Observation> {
         String conceptUuid = JsonPath.read(jsonObject, "$.concept.uuid");
         observation.setFieldUuid(conceptUuid);
 
-        JSONObject jsonValue = JsonPath.read(jsonObject, "$.value");
+        Object jsonValue = JsonPath.read(jsonObject, "$.value");
         String value = jsonValue.toString();
-        if (jsonValue.size() > 1)
+        if (jsonValue instanceof JSONObject)
              value = JsonPath.read(jsonValue, "$.name.display");
         observation.setValueText(value);
 
