@@ -16,19 +16,17 @@ package com.nribeka.search.module;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+import com.nribeka.search.sample.ServerConfigRegistry;
 
 public class AndroidModule extends AbstractModule {
 
-    private String server;
-
-    private String username;
-
-    private String password;
+    private ServerConfigRegistry registry;
 
     public AndroidModule(final String server, final String username, final String password) {
-        this.server = server;
-        this.username = username;
-        this.password = password;
+        registry = new ServerConfigRegistry();
+        registry.putEntry("server", server);
+        registry.putEntry("username", username);
+        registry.putEntry("password", password);
     }
 
     @Override
@@ -42,15 +40,6 @@ public class AndroidModule extends AbstractModule {
                 .annotatedWith(Names.named("configuration.lucene.document.key"))
                 .toInstance("name");
 
-        // bind the server location, username and password
-        bind(String.class)
-                .annotatedWith(Names.named("configuration.server.url"))
-                .toInstance(server);
-        bind(String.class)
-                .annotatedWith(Names.named("configuration.server.username"))
-                .toInstance(username);
-        bind(String.class)
-                .annotatedWith(Names.named("configuration.server.password"))
-                .toInstance(password);
+        bind(ServerConfigRegistry.class).toInstance(registry);
     }
 }

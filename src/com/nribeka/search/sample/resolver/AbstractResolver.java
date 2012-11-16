@@ -16,40 +16,26 @@ package com.nribeka.search.sample.resolver;
 import com.burkeware.search.api.Context;
 import com.burkeware.search.api.resolver.Resolver;
 import com.burkeware.search.api.util.ResolverUtil;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
+import com.nribeka.search.sample.ServerConfigRegistry;
 
 import java.net.URLConnection;
 
 public abstract class AbstractResolver implements Resolver {
 
-    protected String server;
-
-    protected String username;
-
-    protected String password;
+    private ServerConfigRegistry registry;
 
     public AbstractResolver() {
-        server = Context.getInstance(Key.get(String.class, Names.named("configuration.server.url")));
-        username = Context.getInstance(Key.get(String.class, Names.named("configuration.server.username")));
-        password = Context.getInstance(Key.get(String.class, Names.named("configuration.server.password")));
+        registry = Context.getInstance(ServerConfigRegistry.class);
     }
 
     protected String getServer() {
-        return server;
-    }
-
-    protected String getUsername() {
-        return username;
-    }
-
-    protected String getPassword() {
-        return password;
+        return registry.getEntryValue("server");
     }
 
     @Override
     public URLConnection authenticate(final URLConnection connection) {
-        String basicAuth = ResolverUtil.getBasicAuth("admin", "test");
+        String basicAuth =
+                ResolverUtil.getBasicAuth(registry.getEntryValue("username"), registry.getEntryValue("password"));
         connection.setRequestProperty("Authorization", basicAuth);
         return connection;
     }
