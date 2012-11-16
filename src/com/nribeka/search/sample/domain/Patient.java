@@ -12,7 +12,7 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package com.nribeka.search.sample;
+package com.nribeka.search.sample.domain;
 
 import java.util.Date;
 

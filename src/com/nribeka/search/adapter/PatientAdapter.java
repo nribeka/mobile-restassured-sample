@@ -1,11 +1,6 @@
 package com.nribeka.search.adapter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +8,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.nribeka.search.R;
-import com.nribeka.search.sample.Patient;
+import com.nribeka.search.sample.domain.Patient;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class PatientAdapter extends ArrayAdapter<Patient> {
 
@@ -31,7 +30,6 @@ public class PatientAdapter extends ArrayAdapter<Patient> {
 
         Patient patient = getItem(position);
         if (patient != null) {
-            Log.i("Win Log", "Patient Data: " + patient.getUuid());
             TextView textView = (TextView) view.findViewById(R.id.identifier_text);
             String[] identifierElements = patient.getIdentifier().split("=");
             textView.setText(identifierElements[1].trim());

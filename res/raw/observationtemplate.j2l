@@ -1,6 +1,0 @@
-objectType=com.nribeka.search.sample.Observation
-representationType=multi
-representation=$.results
-uuid=$.uuid
-patient_uuid=$.person.uuid
-concept_uuid=$.concept.uuid

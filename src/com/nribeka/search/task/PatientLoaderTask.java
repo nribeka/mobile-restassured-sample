@@ -14,103 +14,62 @@
 
 package com.nribeka.search.task;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
-
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.util.Log;
-import com.burkeware.search.api.JsonLuceneConfig;
-import com.burkeware.search.api.service.IndexService;
-import com.burkeware.search.api.service.SearchService;
-import com.burkeware.search.api.util.JsonLuceneUtil;
-import com.google.inject.Injector;
-import com.jayway.jsonpath.JsonPath;
-import com.nribeka.search.R;
-import com.nribeka.search.sample.Patient;
+import android.widget.ProgressBar;
+import com.burkeware.search.api.Context;
+import com.burkeware.search.api.RestAssuredService;
+import com.burkeware.search.api.resource.Resource;
+import com.burkeware.search.api.util.StringUtil;
+import com.nribeka.search.sample.domain.Cohort;
+import com.nribeka.search.sample.domain.Patient;
+import org.apache.lucene.queryParser.ParseException;
+
+import java.io.IOException;
+import java.util.List;
 
 public class PatientLoaderTask extends AsyncTask<String, String, String> {
 
-    private final Injector injector;
+    private ProgressBar progressBar;
 
-    public PatientLoaderTask(final Injector injector) {
-        this.injector = injector;
+    public PatientLoaderTask(final ProgressBar progressBar) {
+        this.progressBar = progressBar;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+    }
+
+    @Override
+    protected void onPostExecute(final String s) {
+        super.onPostExecute(s);
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
     }
 
     @Override
     protected String doInBackground(String... strings) {
 
-        String server = strings[0];
-        String username = strings[1];
-        String password = strings[2];
-        String cohortConfig = strings[3];
-        String observationConfig = strings[4];
-
-        String auth = username + ":" + password;
-        String basicAuth = "Basic " + new String(Base64.encode(auth.getBytes(), Base64.NO_WRAP));
-
         try {
-            URLConnection cohortUrlConnection = new URL(server + "/ws/rest/v1/cohort/").openConnection();
-            cohortUrlConnection.setRequestProperty("Authorization", basicAuth);
-            String cohortJson = readInputStream(cohortUrlConnection.getInputStream());
-            if (cohortJson != null) {
-                String cohortUuid = JsonPath.read(cohortJson, "$.results[0].uuid");
-                Log.i("Win Log", "Trying to retrieve cohort member for: " + cohortUuid);
-                URL memberUrl = new URL(server + "/ws/rest/v1/cohort/" + cohortUuid + "/member?v=full");
-                URLConnection memberUrlConnection = memberUrl.openConnection();
-                memberUrlConnection.setRequestProperty("Authorization", basicAuth);
-
-                InputStream inputStream = new ByteArrayInputStream(cohortConfig.getBytes());
-                JsonLuceneConfig cohortLuceneConfig = JsonLuceneUtil.load(inputStream);
-
-                IndexService indexService = injector.getInstance(IndexService.class);
-                indexService.updateIndex(cohortLuceneConfig, memberUrlConnection.getInputStream());
+            RestAssuredService service = Context.getService();
+            Resource resource = Context.getResource("Cohort Resource");
+            service.loadObjects(StringUtil.EMPTY, resource);
+            List<Cohort> cohorts = service.getObjects(StringUtil.EMPTY, Cohort.class);
+            for (Cohort cohort : cohorts) {
+                resource = Context.getResource("Cohort Member Resource");
+                service.loadObjects(cohort.getUuid(), resource);
+                List<Patient> patients = service.getObjects(StringUtil.EMPTY, Patient.class);
+                for (Patient patient : patients) {
+                    resource = Context.getResource("Observation Resource");
+                    service.loadObjects(patient.getUuid(), resource);
+                }
             }
-
-            SearchService searchService = injector.getInstance(SearchService.class);
-            List<Patient> patients = searchService.getObjects(Patient.class, "a*");
-
-            InputStream inputStream = new ByteArrayInputStream(observationConfig.getBytes());
-            JsonLuceneConfig observationLuceneConfig = JsonLuceneUtil.load(inputStream);
-
-            for (Patient patient : patients) {
-                Log.i("Win Log", "Patient uuid: " + patient.getUuid());
-
-                String patientUuid = patient.getUuid();
-                URL patientObs = new URL(server + "/ws/rest/v1/obs?patient=" + patientUuid);
-                URLConnection patientObsConnection = patientObs.openConnection();
-                patientObsConnection.setRequestProperty("Authorization", basicAuth);
-
-                IndexService indexService = injector.getInstance(IndexService.class);
-                indexService.updateIndex(observationLuceneConfig, patientObsConnection.getInputStream());
-            }
-
-            Log.i("Win Log", "Loading patient completed successfully!");
-
+        } catch (ParseException e) {
+            Log.e(this.getClass().getSimpleName(), "ParseException when trying to load patient", e);
         } catch (IOException e) {
-            Log.e("Win Log", "Exception caught when loading patient and observation data.", e);
+            Log.e(this.getClass().getSimpleName(), "IOException when trying to load patient", e);
         }
         return "Success";
-    }
-
-    private String readInputStream(final InputStream inputStream) throws IOException {
-        String line;
-        BufferedReader reader = null;
-        StringBuilder builder = new StringBuilder();
-        try {
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-            while ((line = reader.readLine()) != null)
-                builder.append(line);
-        } finally {
-            if (reader != null)
-                reader.close();
-        }
-        return builder.toString();
     }
 }

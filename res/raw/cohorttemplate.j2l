@@ -1,6 +1,0 @@
-objectType=com.nribeka.search.sample.Patient
-representationType=multi
-representation=$.results
-uuid=$.patient.uuid
-identifier=$.patient.identifiers[0].display
-name=$.patient.person.display

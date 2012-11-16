@@ -7,8 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.nribeka.search.R;
-import com.nribeka.search.sample.Observation;
-import com.nribeka.search.util.Constants;
+import com.nribeka.search.sample.domain.Observation;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -32,19 +31,7 @@ public class EncounterAdapter extends ArrayAdapter<Observation> {
         if (obs != null) {
 
             TextView textView = (TextView) v.findViewById(R.id.value_text);
-            switch (obs.getDataType()) {
-                case Constants.TYPE_INT:
-                    textView.setText(obs.getValueInt().toString());
-                    break;
-                case Constants.TYPE_FLOAT:
-                    textView.setText(obs.getValueNumeric().toString());
-                    break;
-                case Constants.TYPE_DATE:
-                    textView.setText(mDateFormat.format(obs.getValueDate()));
-                    break;
-                default:
-                    textView.setText(obs.getValueText());
-            }
+            textView.setText(obs.getValueText());
 
             textView = (TextView) v.findViewById(R.id.encounterdate_text);
             textView.setText(mDateFormat.format(obs.getObservationDate()));

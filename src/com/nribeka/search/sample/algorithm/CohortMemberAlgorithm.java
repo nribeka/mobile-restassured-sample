@@ -12,30 +12,31 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package com.nribeka.search.sample;
+package com.nribeka.search.sample.algorithm;
+
+import android.util.Log;
+import com.burkeware.search.api.serialization.Algorithm;
+import com.burkeware.search.api.util.ISO8601Util;
+import com.jayway.jsonpath.JsonPath;
+import com.nribeka.search.sample.domain.Patient;
 
 import java.text.ParseException;
 
-import android.util.Log;
-import com.burkeware.search.api.algorithm.Algorithm;
-import com.jayway.jsonpath.JsonPath;
-import com.nribeka.search.util.ISO8601;
+public class CohortMemberAlgorithm implements Algorithm {
 
-public class PatientAlgorithm implements Algorithm<Patient> {
     /**
      * Implementation of this method will define how the patient will be serialized from the JSON representation.
      *
-     *
-     * @param json the json representation
+     * @param serialized the json representation
      * @return the concrete patient object
      */
     @Override
-    public Patient serialize(final String json) {
+    public Patient deserialize(final String serialized) {
         Patient patient = new Patient();
 
         // get the full json object representation and then pass this around to the next JsonPath.read()
         // this should minimize the time for the subsequent read() call
-        Object jsonObject = JsonPath.read(json, "$");
+        Object jsonObject = JsonPath.read(serialized, "$");
 
         String uuid = JsonPath.read(jsonObject, "$.patient.uuid");
         patient.setUuid(uuid);
@@ -51,12 +52,12 @@ public class PatientAlgorithm implements Algorithm<Patient> {
 
         String birthdate = JsonPath.read(jsonObject, "$.patient.person.birthdate");
         try {
-            patient.setBirthdate(ISO8601.toCalendar(birthdate).getTime());
+            patient.setBirthdate(ISO8601Util.toCalendar(birthdate).getTime());
         } catch (ParseException e) {
-            Log.i("Win Log", "Unable to parse date data from json payload.");
+            Log.i(this.getClass().getSimpleName(), "Unable to parse date data from json payload.");
         }
 
-        patient.setJson(json);
+        patient.setJson(serialized);
 
         return patient;
     }
@@ -64,12 +65,12 @@ public class PatientAlgorithm implements Algorithm<Patient> {
     /**
      * Implementation of this method will define how the patient will be deserialized into the JSON representation.
      *
-     *
-     * @param patient the patient
+     * @param object the patient
      * @return the json representation
      */
     @Override
-    public String deserialize(final Patient patient) {
+    public String serialize(final Object object) {
+        Patient patient = (Patient) object;
         return patient.getJson();
     }
 }

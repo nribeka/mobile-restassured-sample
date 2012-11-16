@@ -11,37 +11,38 @@
  *
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
-package com.nribeka.search.sample;
+package com.nribeka.search.sample.algorithm;
 
-import android.util.Log;
-import com.burkeware.search.api.algorithm.Algorithm;
+import com.burkeware.search.api.serialization.Algorithm;
+import com.burkeware.search.api.util.ISO8601Util;
 import com.jayway.jsonpath.JsonPath;
-import com.nribeka.search.util.ISO8601;
+import com.nribeka.search.sample.domain.Observation;
+import com.nribeka.search.util.Constants;
 import net.minidev.json.JSONObject;
 
 import java.text.ParseException;
 
-public class ObservationAlgorithm implements Algorithm<Observation> {
+public class ObservationAlgorithm implements Algorithm {
+
     /**
-     * Implementation of this method will define how the patient will be serialized from the JSON representation.
+     * Implementation of this method will define how the object will be serialized from the String representation.
      *
-     *
-     * @param json the json representation
-     * @return the concrete observation object
+     * @param serialized the string representation
+     * @return the concrete object
      */
     @Override
-    public Observation serialize(final String json) {
+    public Object deserialize(final String serialized) {
         Observation observation = new Observation();
 
         // get the full json object representation and then pass this around to the next JsonPath.read()
         // this should minimize the time for the subsequent read() call
-        Object jsonObject = JsonPath.read(json, "$");
+        Object jsonObject = JsonPath.read(serialized, "$");
 
         String uuid = JsonPath.read(jsonObject, "$.uuid");
         observation.setUuid(uuid);
 
-        String patientUuid = JsonPath.read(jsonObject, "$.person.uuid");
-        observation.setPatientUuid(patientUuid);
+        String patient = JsonPath.read(jsonObject, "$.person.uuid");
+        observation.setPatient(patient);
 
         String conceptName = JsonPath.read(jsonObject, "$.concept.display");
         observation.setFieldName(conceptName);
@@ -51,31 +52,35 @@ public class ObservationAlgorithm implements Algorithm<Observation> {
 
         Object jsonValue = JsonPath.read(jsonObject, "$.value");
         String value = jsonValue.toString();
-        if (jsonValue instanceof JSONObject)
-             value = JsonPath.read(jsonValue, "$.name.display");
+        byte datatype = Constants.TYPE_INT;
+        if (jsonValue instanceof JSONObject) {
+            value = JsonPath.read(jsonValue, "$.name.display");
+            datatype = Constants.TYPE_STRING;
+        }
         observation.setValueText(value);
+        observation.setDatatype(datatype);
 
         String obsDatetime = JsonPath.read(jsonObject, "$.obsDatetime");
         try {
-            observation.setObservationDate(ISO8601.toCalendar(obsDatetime).getTime());
+            observation.setObservationDate(ISO8601Util.toCalendar(obsDatetime).getTime());
         } catch (ParseException e) {
-            Log.i("Win Log", "Unable to parse date data from json payload.");
+            // suppress the exception
         }
 
-        observation.setJson(json);
+        observation.setJson(serialized);
 
         return observation;
     }
 
     /**
-     * Implementation of this method will define how the patient will be deserialized into the JSON representation.
+     * Implementation of this method will define how the object will be de-serialized into the String representation.
      *
-     *
-     * @param observation the observation
-     * @return the json representation
+     * @param object the object
+     * @return the string representation
      */
     @Override
-    public String deserialize(final Observation observation) {
+    public String serialize(final Object object) {
+        Observation observation = (Observation) object;
         return observation.getJson();
     }
 }
